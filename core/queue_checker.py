@@ -132,7 +132,7 @@ class QueueChecker:
         logging.info('Checking queue for: {} - {}'.format(order_id, code))
         chrome_options = Options()
         # chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(ChromeDriverManager(driver_version='119.0.6045.124').install(), options=chrome_options)
+        driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         driver.maximize_window()
         url = self.get_url(kdmid_subdomain, order_id, code)
         driver.get(url)
