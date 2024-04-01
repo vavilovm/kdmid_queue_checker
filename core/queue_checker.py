@@ -101,7 +101,7 @@ class QueueChecker:
 		              driver.execute_script("return window.innerHeight"))
         img = img.resize(screensize)
         
-        box = (int(left), int(top), int(right), int(bottom))
+        box = (int(left + 200), int(top), int(right - 200), int(bottom))
         area = img.crop(box)
         area.save(self.screen_name, 'PNG')
         
@@ -111,18 +111,22 @@ class QueueChecker:
         # Median filter
         out = cv2.medianBlur(c_gray,1)
         # Image thresholding 
-        a = np.where(out>228, 1, out)
+        a = np.where(out>150, 1, out)
         out = np.where(a!=1, 0, a)
         # Islands removing with threshold = 30
-        out = removeIsland(out, 30)
+        out = removeIsland(out, 150)
         # Median filter
         out = cv2.medianBlur(out,3)
+
+        # Cropping an image
+        out = out[80:140, 5:195]
+
         cv2.imwrite(self.image_name, out*255)
         os.remove(self.screen_name)
         os.remove("screenshot.png")
     
     def recognize_image(self): 
-        digits = pytesseract.image_to_string(self.image_name, config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
+        digits = pytesseract.image_to_string(self.image_name, config='--psm 8 --oem 3 -c tessedit_char_whitelist=0123456789')
         return digits
 
     def check_queue(self, kdmid_subdomain, order_id, code): 
