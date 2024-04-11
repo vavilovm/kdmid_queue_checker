@@ -147,7 +147,20 @@ class QueueChecker:
         # iterate until captcha is recognized 
         while error: 
             self.screenshot_captcha(driver, error_screen)
-            digits = self.recognize_image()
+            digits = self.recognize_image().strip()
+
+            if (len(digits) != 6):
+                status = 'error'
+                message = f'Wrong digits length, digits: .{digits}.'
+
+                print(message)
+
+                self.write_success_file(str(message), str(status))
+                logging.warning(f'{message}')
+
+                driver.refresh()
+                time.sleep(5)
+                continue
 
             WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.XPATH, self.text_form))).send_keys(str(digits))
 
@@ -162,8 +175,11 @@ class QueueChecker:
                 
                 self.write_success_file(str(message), str(status))	
                 logging.warning(f'{message}')
+                logging.warning(f'digits: {digits}')
                 break
             except:
+                logging.warning(f'Except digits: {digits}')
+
                 pass
 
             if self.check_exists_by_xpath(self.button_dalee, driver): 
@@ -215,7 +231,9 @@ class QueueChecker:
         except: 
             message = '{} --- no free timeslots for now'.format(datetime.date.today())
             logging.info(message)
-            
+
+        time.sleep(5)
+
         driver.quit()
         if os.path.exists(self.screen_name):
             os.remove(self.screen_name)
